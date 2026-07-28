@@ -1,0 +1,125 @@
+:host {
+  position: fixed;
+  z-index: 1000;
+  top: 24px;
+  right: 24px;
+  pointer-events: none;
+}
+
+.toast {
+  --accent: #aa7bef;
+  width: min(390px, calc(100vw - 32px));
+  min-height: 78px;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  color: #f7f2ff;
+  background:
+    linear-gradient(110deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent 54%),
+    rgba(20, 15, 27, 0.96);
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.42),
+    inset 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  pointer-events: auto;
+  animation: toast-in 220ms ease-out;
+}
+
+.toast--success {
+  --accent: #8edab1;
+}
+
+.toast--error {
+  --accent: #e28cac;
+}
+
+.toast--info {
+  --accent: #aa7bef;
+}
+
+.toast__icon {
+  width: 38px;
+  height: 38px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+svg {
+  width: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.toast__content {
+  min-width: 0;
+}
+
+strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+p {
+  margin: 0;
+  color: #ded6e7;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+button {
+  width: 31px;
+  height: 31px;
+  border: 0;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #83798c;
+  background: transparent;
+  cursor: pointer;
+  transition: 150ms ease;
+}
+
+button:hover {
+  color: #e9ddf5;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+button svg {
+  width: 16px;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+@media (max-width: 600px) {
+  :host {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

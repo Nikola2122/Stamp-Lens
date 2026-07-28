@@ -1,0 +1,32 @@
+@if (toaster.toast(); as toast) {
+  <aside
+    class="toast"
+    [class]="'toast toast--' + toast.type"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <span class="toast__icon" aria-hidden="true">
+      @switch (toast.type) {
+        @case ('success') {
+          <svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" /></svg>
+        }
+        @case ('error') {
+          <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" /></svg>
+        }
+        @default {
+          <svg viewBox="0 0 24 24"><path d="M12 11v6M12 7h.01" /></svg>
+        }
+      }
+    </span>
+
+    <div class="toast__content">
+      <strong>{{ toast.type }}</strong>
+      <p>{{ toast.message }}</p>
+    </div>
+
+    <button type="button" (click)="toaster.dismiss()" aria-label="Dismiss notification">
+      <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" /></svg>
+    </button>
+  </aside>
+}

@@ -1,0 +1,74 @@
+<app-toaster />
+
+<header class="topbar">
+  <a class="brand" routerLink="/" aria-label="Stamp Lens home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32">
+        <path d="M8 3v3H4v5H2v10h2v5h4v3h16v-3h4v-5h2V11h-2V6h-4V3H8Z" />
+        <circle cx="16" cy="16" r="6" />
+        <path d="m12.5 17.5 2.2 2.2 5.1-6" />
+      </svg>
+    </span>
+    <span>STAMP LENS</span>
+  </a>
+
+  <a class="back-link" routerLink="/">
+    <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+    Back to collection
+  </a>
+</header>
+
+<main>
+  <section class="page-heading">
+    <div class="eyebrow"><span>02</span> Process image</div>
+    <h1>Your stamp,<br /><em>ready for a closer look.</em></h1>
+    <p>Review the selected image before starting the processing pipeline.</p>
+  </section>
+
+  @if (isLoading()) {
+    <div class="loading-state"><span></span>Loading selected image…</div>
+  } @else if (image(); as selectedImage) {
+    <section class="selected-image">
+      <div class="image-stage">
+        <img [src]="selectedImage.file" [alt]="selectedImage.original_name" />
+        @if (selectedImage.isNew) {
+          <span class="new-badge">New</span>
+        }
+      </div>
+
+      <div class="image-panel">
+        <p class="panel-label">Selected image</p>
+        <h2>{{ selectedImage.original_name }}</h2>
+        <dl>
+          <div><dt>Uploaded</dt><dd>{{ selectedImage.uploaded_at | date: 'medium' }}</dd></div>
+          <div><dt>Format</dt><dd>{{ selectedImage.extension | uppercase }}</dd></div>
+        </dl>
+
+        <button type="button" class="process-button" (click)="processImage()">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Process image
+        </button>
+        <p class="process-note">Cropping and feature extraction will be connected here next.</p>
+      </div>
+    </section>
+  } @else {
+    <section class="not-found">
+      <h2>Image unavailable</h2>
+      <p>This image may have been removed or the link may be incorrect.</p>
+      <a routerLink="/">Return to your collection</a>
+    </section>
+  }
+
+  <section class="history">
+    <div class="history-heading">
+      <div><p>Reserved workspace</p><h2>Earlier processes</h2></div>
+      <span>Coming later</span>
+    </div>
+    <div class="history-placeholder" aria-label="Space reserved for earlier processes">
+      <div></div><div></div><div></div>
+    </div>
+  </section>
+</main>

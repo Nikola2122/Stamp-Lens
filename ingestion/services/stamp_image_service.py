@@ -17,12 +17,13 @@ class StampImageService:
 
 
     def get_all_stamp_images(self) -> list[StampImage]:
-        return list(StampImage.objects.all())
+        return list(StampImage.objects.order_by("-uploaded_at"))
 
 
     def delete_stamp_image(self, image_id: int) -> bool:
         image = StampImage.objects.get(id=image_id)
 
+        image.file.delete(save=False)
         image.delete()
 
         return True

@@ -1,9 +1,9 @@
 from rest_framework import serializers
+
 from ingestion.models import StampImage
 
 
 class StampImageSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = StampImage
         fields = [
@@ -11,5 +11,5 @@ class StampImageSerializer(serializers.ModelSerializer):
             "original_name",
             "file",
             "extension",
-            "uploaded_at"
+            "uploaded_at",
         ]

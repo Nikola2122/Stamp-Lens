@@ -1,0 +1,26 @@
+<div class="backdrop" (click)="cancelled.emit()">
+  <section
+    class="modal"
+    role="alertdialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'confirmation-title'"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M8 8v9m4-9v9m4-9v9M5 5h14M9 5l1-2h4l1 2m3 0-1 15H7L6 5" />
+      </svg>
+    </div>
+
+    <p class="eyebrow">Confirm action</p>
+    <h2 id="confirmation-title">{{ title() }}</h2>
+    <p class="message">{{ message() }}</p>
+
+    <div class="actions">
+      <button type="button" class="cancel" [disabled]="isWorking()" (click)="cancelled.emit()">Cancel</button>
+      <button type="button" class="confirm" [disabled]="isWorking()" (click)="confirmed.emit()">
+        {{ isWorking() ? 'Deleting…' : confirmLabel() }}
+      </button>
+    </div>
+  </section>
+</div>
