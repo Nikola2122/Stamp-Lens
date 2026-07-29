@@ -4,10 +4,10 @@ from ingestion.models import StampImage
 
 
 class StampAnalysis(models.Model):
-    stamp_image = models.OneToOneField(
+    stamp_image = models.ForeignKey(
         StampImage,
         on_delete=models.CASCADE,
-        related_name="analysis",
+        related_name="analyses",
     )
     cropped_stamp = models.ImageField(
         upload_to="extraction/stamps/",

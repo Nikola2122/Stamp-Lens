@@ -25,19 +25,15 @@ class StampAnalysisService:
         if not encoded_successfully:
             raise ValueError("The extracted stamp crop could not be encoded.")
 
-        analysis, _ = StampAnalysis.objects.get_or_create(
+        analysis = StampAnalysis(
             stamp_image=stamp_image,
-            defaults={
-                "width_mm": extraction_result.width_mm,
-                "height_mm": extraction_result.height_mm,
-                "extraction_model_version": extraction_result.model_version,
-                "ocr_model_version": ocr_result.model_version,
-                "tagging_model_version": tagging_result.model_version,
-            },
+            width_mm=extraction_result.width_mm,
+            height_mm=extraction_result.height_mm,
+            extraction_model_version=extraction_result.model_version,
+            ocr_model_version=ocr_result.model_version,
+            tagging_model_version=tagging_result.model_version,
         )
 
-        analysis.width_mm = extraction_result.width_mm
-        analysis.height_mm = extraction_result.height_mm
         analysis.ocr_text = ocr_result.text
         analysis.image_description = tagging_result.description
         analysis.dominant_colors = extraction_result.dominant_colors
@@ -81,9 +77,6 @@ class StampAnalysisService:
                 ],
             },
         }
-        analysis.extraction_model_version = extraction_result.model_version
-        analysis.ocr_model_version = ocr_result.model_version
-        analysis.tagging_model_version = tagging_result.model_version
         analysis.cropped_stamp.save(
             f"stamp-{stamp_image.pk}-{uuid4().hex}.png",
             ContentFile(encoded_crop.tobytes()),

@@ -1,5 +1,103 @@
 # Stamp Lens
 
+## Agreed Product Flow
+
+Stamp Lens should return the best result it can gather without making every
+optional stage a requirement. The processing pipeline has these steps:
+
+1. **Feature extraction**
+   - Detect and crop the stamp from the A4 sheet.
+   - Measure the stamp.
+   - Extract OCR text, dominant colors, and image tags.
+2. **External recognition**
+   - Upload the cropped stamp to an external stamp-recognition website.
+   - Save the stamp name and any other useful information returned by the site.
+3. **Web search**
+   - If recognition returned a usable stamp name, search that name on Google.
+   - Open a useful result and extract a description or other basic stamp
+     information.
+4. **Price search**
+   - If recognition returned a usable stamp name, search eBay and Amazon.
+   - Save whatever useful price information is found.
+5. **LLM summary**
+   - Give the LLM all information collected by the previous steps.
+   - Ask it to create a short, user-friendly summary and final result.
+
+The pipeline is intentionally best-effort. Feature extraction is the only
+required step. If recognition finds nothing, web search and price search are
+skipped. The user still receives the crop, measurements, OCR text, colors, and
+tags produced by extraction. If web or marketplace searches find nothing, the
+job continues and the final result contains whatever information was found.
+
+### Job and Step Statuses
+
+The `ProcessingJob` is the main record for one processing attempt. Its final
+status has three possible values:
+
+- `succeeded`
+- `succeeded_with_warning`
+- `failed`
+
+A job is `failed` only when feature extraction fails. If extraction succeeds
+but recognition finds nothing, an optional external step fails, or some useful
+online information cannot be collected, the job is
+`succeeded_with_warning`. If all planned steps finish normally, the job is
+`succeeded`.
+
+Warnings and technical failures are stored on the processing job as a simple
+array of diagnostic descriptions. They are for debugging and are not shown on
+the user-facing report.
+
+Each step shown in the frontend progress line can have one of five processing
+states:
+
+- `processing`
+- `success`
+- `warning`
+- `failed`
+- `skipped`
+
+Before a step starts, its circle is simply inactive. A step becomes `skipped`
+when it depends on information that an earlier step did not find. In the
+frontend, the steps are displayed from left to right as connected circles. SSE
+updates the relevant circle whenever a step starts or finishes. These states
+are transient processing feedback; they are not status fields stored on every
+extraction, recognition, price, or summary record, and they are not displayed
+on the finished report page.
+
+Example:
+
+```text
+Extraction        Recognition        Web Search        Price Search        Summary
+  success    ->      warning     ->     skipped     ->    skipped      ->    success
+```
+
+This example ends as `succeeded_with_warning` because extraction succeeded but
+some optional information was unavailable. The user still receives the
+extracted information.
+
+### Simple Database Shape
+
+The database should remain small and explicit:
+
+- the existing extraction tables (`StampAnalysis` and `StampTag`);
+- one recognition table;
+- one price-results table;
+- one summary/final-result table;
+- one central processing-job table connected to the uploaded `StampImage` and
+  its extraction, recognition, price, and summary results.
+
+The processing-job record stores the overall status, timestamps, and an array
+of debugging descriptions for warnings or failures. The individual result
+tables contain their data, not separate `failed` or `succeeded` fields. We do
+not need a generic database framework with separate models for every event or
+pipeline detail.
+
+One stamp can have multiple processing jobs because the user may process it
+again later. Opening a stamp loads all of its jobs. The user can choose a
+successful or successful-with-warning job and open its saved report. Failed
+jobs remain available as processing history but do not have a completed report.
+
 ## Top-Down Processing Architecture
 
 Stamp Lens will process an uploaded stamp asynchronously. One top-level processing job will own the entire pipeline, which may eventually include image preprocessing, feature extraction, PaddleOCR, Amazon price lookup, other enrichment, and LLM-assisted comparison.
@@ -24,7 +122,9 @@ The key architectural rule is that the processing job must continue independentl
    - current step: loading spinner;
    - pending step: inactive circle;
    - failed step: error state and message.
-9. When all processing finishes, the worker persists the final result and publishes a terminal `completed` or `failed` event.
+9. When all processing finishes, the worker persists the best available result
+   and publishes a terminal `succeeded`, `succeeded_with_warning`, or `failed`
+   event. It uses `failed` only when feature extraction fails.
 
 ### Request Shape
 
@@ -70,9 +170,7 @@ The database is the source of truth. It stores:
 
 - the job and its overall status;
 - the current step;
-- completed and failed steps;
-- progress information;
-- errors;
+- diagnostic warning/failure descriptions on the job;
 - extracted data and intermediate/final results;
 - timestamps and relevant processor/model versions.
 
@@ -135,8 +233,12 @@ A monotonically increasing sequence number or persisted event ID can later help 
 - One job owns the complete pipeline; individual processing stages are not separate background jobs.
 - Stages execute sequentially inside the Celery task and persist their results before the next stage begins.
 - The same job must not be started again merely because the frontend reconnects.
-- Terminal states include at least `completed` and `failed`.
-- Cancellation, retries, timeouts, detailed step definitions, OCR behavior, LLM comparison, and external price lookup will be designed later.
+- Terminal job states are `succeeded`, `succeeded_with_warning`, and `failed`;
+  only extraction failure fails the whole job.
+- Missing or failed optional steps result in `succeeded_with_warning`, and the
+  job still returns and stores its partial results.
+- Cancellation, retries, timeouts, and exact external-site automation details
+  will be designed later.
 
 ### Conceptual Data Flow
 
@@ -159,4 +261,6 @@ Redis Pub/Sub
 SSE Endpoint ---- GET stream ----> Angular progress timeline
 ```
 
-This document intentionally defines only the overall architecture. Detailed pipeline steps, database models, event schemas, retry policies, and individual extraction technologies will be decided before implementation.
+The pipeline and simplified persistence rules above are the current product
+direction. Exact event payloads, retry policies, and external-site automation
+details will be decided during implementation.
