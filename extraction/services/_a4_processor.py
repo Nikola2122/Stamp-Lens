@@ -6,16 +6,15 @@ from extraction.constants import (
     A4_LONG_SIDE_MM,
     A4_SHORT_SIDE_MM,
     EXTRACTION_MODEL_VERSION,
+    MAX_STAMP_SIDE_RATIO,
+    MIN_PAGE_AREA_RATIO,
+    MIN_STAMP_AREA_RATIO,
+    PAGE_INSET_RATIO,
 )
 from extraction.dtos import A4ExtractionDTO, StampBoxDTO
 
 
 class A4Processor:
-    _MIN_PAGE_AREA_RATIO = 0.20
-    _MIN_STAMP_AREA_RATIO = 0.0005
-    _MAX_STAMP_SIDE_RATIO = 0.65
-    _PAGE_INSET_RATIO = 0.04
-
     def process(self, image_bytes: bytes) -> A4ExtractionDTO:
         image = self._decode_image(image_bytes)
         page_corners = self._find_page_corners(image)
@@ -72,7 +71,7 @@ class A4Processor:
             cv2.RETR_EXTERNAL,
             cv2.CHAIN_APPROX_SIMPLE,
         )
-        minimum_area = image.shape[0] * image.shape[1] * self._MIN_PAGE_AREA_RATIO
+        minimum_area = image.shape[0] * image.shape[1] * MIN_PAGE_AREA_RATIO
 
         for contour in sorted(contours, key=cv2.contourArea, reverse=True):
             if cv2.contourArea(contour) < minimum_area:
@@ -151,8 +150,8 @@ class A4Processor:
 
     def _find_stamp_box(self, page: np.ndarray) -> tuple[int, int, int, int]:
         height, width = page.shape[:2]
-        inset_x = max(1, round(width * self._PAGE_INSET_RATIO))
-        inset_y = max(1, round(height * self._PAGE_INSET_RATIO))
+        inset_x = max(1, round(width * PAGE_INSET_RATIO))
+        inset_y = max(1, round(height * PAGE_INSET_RATIO))
         interior = page[inset_y : height - inset_y, inset_x : width - inset_x]
 
         border_pixels = np.concatenate(
@@ -192,11 +191,11 @@ class A4Processor:
         for contour in contours:
             x, y, box_width, box_height = cv2.boundingRect(contour)
             area_ratio = box_width * box_height / page_area
-            if area_ratio < self._MIN_STAMP_AREA_RATIO:
+            if area_ratio < MIN_STAMP_AREA_RATIO:
                 continue
             if (
-                box_width > width * self._MAX_STAMP_SIDE_RATIO
-                or box_height > height * self._MAX_STAMP_SIDE_RATIO
+                box_width > width * MAX_STAMP_SIDE_RATIO
+                or box_height > height * MAX_STAMP_SIDE_RATIO
             ):
                 continue
             candidates.append((x, y, box_width, box_height))
