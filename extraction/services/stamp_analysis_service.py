@@ -17,7 +17,7 @@ class StampAnalysisService:
         extraction_result: A4ExtractionDTO,
         ocr_result: OCRResultDTO,
         tagging_result: ImageTaggingDTO,
-    ) -> None:
+    ) -> StampAnalysis:
         encoded_successfully, encoded_crop = cv2.imencode(
             ".png",
             extraction_result.cropped_stamp,
@@ -94,3 +94,4 @@ class StampAnalysisService:
             )
             for tag in tagging_result.tags
         )
+        return analysis

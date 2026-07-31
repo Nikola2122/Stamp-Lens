@@ -1,6 +1,16 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from extraction.models import StampAnalysis
+
+
+@dataclass
+class ExtractionServiceResultDTO:
+    message: str
+    stamp_analysis: "StampAnalysis"
 
 
 @dataclass

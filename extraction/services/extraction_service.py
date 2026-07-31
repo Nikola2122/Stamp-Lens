@@ -2,6 +2,7 @@ from extraction.services._a4_processor import A4Processor
 from extraction.services._image_tagger import ImageTagger
 from extraction.services._ocr_processor import OCRProcessor
 from extraction.services.stamp_analysis_service import StampAnalysisService
+from extraction.dtos import ExtractionServiceResultDTO
 from ingestion.models import StampImage
 
 
@@ -29,7 +30,10 @@ class ExtractionService:
         self._image_tagger = image_tagger or ImageTagger()
         self._analysis_service = analysis_service or StampAnalysisService()
 
-    def extract(self, stamp_image: StampImage) -> str:
+    def extract(
+        self,
+        stamp_image: StampImage,
+    ) -> ExtractionServiceResultDTO:
         if not stamp_image.pk:
             raise ExtractionError(
                 "The stamp image must be saved before it can be extracted."
@@ -47,13 +51,16 @@ class ExtractionService:
             ocr_result = self._ocr_processor.process(cropped_stamp)
             tagging_result = self._image_tagger.process(cropped_stamp)
 
-            self._analysis_service.save(
+            stamp_analysis = self._analysis_service.save(
                 stamp_image=stamp_image,
                 extraction_result=extraction_result,
                 ocr_result=ocr_result,
                 tagging_result=tagging_result,
             )
-            return "Stamp extraction completed successfully."
+            return ExtractionServiceResultDTO(
+                message="Stamp extraction completed successfully.",
+                stamp_analysis=stamp_analysis,
+            )
         except ExtractionError:
             raise
         except Exception as error:

@@ -26,11 +26,11 @@ class Command(BaseCommand):
             ) from error
 
         try:
-            message = RecognitionService().recognize(stamp_analysis)
+            result = RecognitionService().recognize(stamp_analysis)
         except RecognitionError as error:
             raise CommandError(str(error)) from error
 
-        if message == RECOGNITION_NOT_FOUND_MESSAGE:
-            self.stdout.write(self.style.WARNING(message))
+        if result.message == RECOGNITION_NOT_FOUND_MESSAGE:
+            self.stdout.write(self.style.WARNING(result.message))
         else:
-            self.stdout.write(self.style.SUCCESS(message))
+            self.stdout.write(self.style.SUCCESS(result.message))

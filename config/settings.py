@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'extraction',
     'recognition',
     'research',
+    'pricing',
+    'summarization',
     'common'
 ]
 

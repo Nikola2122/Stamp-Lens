@@ -6,6 +6,7 @@ from recognition.constants import (
     RECOGNITION_SUCCESS_MESSAGE,
 )
 from recognition.models import StampRecognition
+from recognition.dtos import RecognitionServiceResultDTO
 from recognition.services._gemini_recognition_client import (
     GeminiRecognitionClient,
 )
@@ -32,7 +33,10 @@ class RecognitionService:
             recognition_client or GeminiRecognitionClient()
         )
 
-    def recognize(self, stamp_analysis: StampAnalysis) -> str:
+    def recognize(
+        self,
+        stamp_analysis: StampAnalysis,
+    ) -> RecognitionServiceResultDTO:
         if not stamp_analysis.pk:
             raise RecognitionError(
                 "The stamp analysis must be saved before recognition."
@@ -54,9 +58,12 @@ class RecognitionService:
                 ocr_text=stamp_analysis.ocr_text,
             )
             if not self._is_meaningful_name(result.name):
-                return RECOGNITION_NOT_FOUND_MESSAGE
+                return RecognitionServiceResultDTO(
+                    message=RECOGNITION_NOT_FOUND_MESSAGE,
+                    stamp_recognition=None,
+                )
 
-            StampRecognition.objects.update_or_create(
+            stamp_recognition, _ = StampRecognition.objects.update_or_create(
                 stamp_analysis=stamp_analysis,
                 defaults={
                     "name": result.name,
@@ -64,7 +71,10 @@ class RecognitionService:
                     "raw_result": result.raw_result,
                 },
             )
-            return RECOGNITION_SUCCESS_MESSAGE
+            return RecognitionServiceResultDTO(
+                message=RECOGNITION_SUCCESS_MESSAGE,
+                stamp_recognition=stamp_recognition,
+            )
         except RecognitionError:
             raise
         except Exception as error:

@@ -6,6 +6,7 @@ from research.constants import (
     RESEARCH_SUCCESS_MESSAGE,
 )
 from research.models import StampResearch, StampResearchQA
+from research.dtos import ResearchServiceResultDTO
 from research.services._serpapi_client import SerpApiClient
 from research.services._wikipedia_client import WikipediaClient
 
@@ -31,7 +32,10 @@ class ResearchService:
         self._serpapi_client = serpapi_client or SerpApiClient()
         self._wikipedia_client = wikipedia_client or WikipediaClient()
 
-    def research(self, stamp_recognition: StampRecognition) -> str:
+    def research(
+        self,
+        stamp_recognition: StampRecognition,
+    ) -> ResearchServiceResultDTO:
         if not stamp_recognition.pk:
             raise ResearchError(
                 "The stamp recognition must be saved before research."
@@ -72,7 +76,10 @@ class ResearchService:
                     }
 
             if result is None:
-                return RESEARCH_NOT_FOUND_MESSAGE
+                return ResearchServiceResultDTO(
+                    message=RESEARCH_NOT_FOUND_MESSAGE,
+                    stamp_research=None,
+                )
 
             stamp_research, _ = StampResearch.objects.update_or_create(
                 stamp_recognition=stamp_recognition,
@@ -116,7 +123,10 @@ class ResearchService:
                     ],
                 },
             )
-            return RESEARCH_SUCCESS_MESSAGE
+            return ResearchServiceResultDTO(
+                message=RESEARCH_SUCCESS_MESSAGE,
+                stamp_research=stamp_research,
+            )
         except ResearchError:
             raise
         except Exception as error:

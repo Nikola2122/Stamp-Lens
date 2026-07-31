@@ -25,6 +25,8 @@ class Command(BaseCommand):
             ) from error
 
         try:
-            ExtractionService().extract(stamp_image)
+            result = ExtractionService().extract(stamp_image)
         except ExtractionError as error:
             raise CommandError(str(error)) from error
+
+        self.stdout.write(self.style.SUCCESS(result.message))

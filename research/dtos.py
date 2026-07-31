@@ -1,4 +1,14 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from research.models import StampResearch
+
+
+@dataclass
+class ResearchServiceResultDTO:
+    message: str
+    stamp_research: "StampResearch | None"
 
 
 @dataclass
