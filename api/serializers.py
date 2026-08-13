@@ -13,3 +13,8 @@ class StampImageSerializer(serializers.ModelSerializer):
             "extension",
             "uploaded_at",
         ]
+
+class ErrorResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()
+    code = serializers.CharField(required=False, allow_null=True)
+    details = serializers.JSONField(required=False, allow_null=True)

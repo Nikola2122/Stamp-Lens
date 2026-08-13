@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'research',
     'pricing',
     'summarization',
-    'common'
 ]
 
 MIDDLEWARE = [

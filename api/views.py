@@ -3,8 +3,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from ingestion.models import StampImage
 
-from api.serializers import StampImageSerializer
-from common.responses.error_response import ErrorResponseSerializer
+from api.serializers import StampImageSerializer, ErrorResponseSerializer
 from ingestion.services.stamp_image_service import StampImageService
 from ingestion.services.stamp_image_upload_service import StampImageUploadService
 
@@ -33,8 +32,13 @@ class Api(ViewSet):
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         except StampImage.DoesNotExist:
+            payload = {
+                "message": "Image not found",
+                "code": "NOT_FOUND",
+                "details": None,
+            }
             return Response(
-                {"message": "Image not found"},
+                ErrorResponseSerializer(payload).data,
                 status=status.HTTP_404_NOT_FOUND,
             )
 
@@ -62,7 +66,12 @@ class Api(ViewSet):
             self.image_service.delete_stamp_image(image_id)
             return Response(status=status.HTTP_200_OK)
         except StampImage.DoesNotExist:
+            payload = {
+                "message": "Image not found",
+                "code": "NOT_FOUND",
+                "details": None,
+            }
             return Response(
-                {"message": "Image not found"},
+                ErrorResponseSerializer(payload).data,
                 status=status.HTTP_404_NOT_FOUND,
             )
