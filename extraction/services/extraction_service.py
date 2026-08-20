@@ -1,4 +1,4 @@
-from extraction.services._a4_processor import A4Processor
+from extraction.services._surface_processor import SurfaceProcessor
 from extraction.services._image_tagger import ImageTagger
 from extraction.services._ocr_processor import OCRProcessor
 from extraction.services.stamp_analysis_service import StampAnalysisService
@@ -20,12 +20,12 @@ class ExtractionService:
 
     def __init__(
         self,
-        a4_processor: A4Processor | None = None,
+        surface_processor: SurfaceProcessor | None = None,
         ocr_processor: OCRProcessor | None = None,
         image_tagger: ImageTagger | None = None,
         analysis_service: StampAnalysisService | None = None,
     ):
-        self._a4_processor = a4_processor or A4Processor()
+        self._surface_processor = surface_processor or SurfaceProcessor()
         self._ocr_processor = ocr_processor or OCRProcessor()
         self._image_tagger = image_tagger or ImageTagger()
         self._analysis_service = analysis_service or StampAnalysisService()
@@ -46,7 +46,7 @@ class ExtractionService:
             finally:
                 stamp_image.file.close()
 
-            extraction_result = self._a4_processor.process(image_bytes)
+            extraction_result = self._surface_processor.process(image_bytes)
             cropped_stamp = extraction_result.cropped_stamp
             ocr_result = self._ocr_processor.process(cropped_stamp)
             tagging_result = self._image_tagger.process(cropped_stamp)

@@ -4,7 +4,7 @@ import cv2
 from django.core.files.base import ContentFile
 from django.db import transaction
 
-from extraction.dtos import A4ExtractionDTO, ImageTaggingDTO, OCRResultDTO
+from extraction.dtos import ImageTaggingDTO, OCRResultDTO, SurfaceExtractionDTO
 from extraction.models import StampAnalysis, StampTag
 from ingestion.models import StampImage
 
@@ -14,7 +14,7 @@ class StampAnalysisService:
     def save(
         self,
         stamp_image: StampImage,
-        extraction_result: A4ExtractionDTO,
+        extraction_result: SurfaceExtractionDTO,
         ocr_result: OCRResultDTO,
         tagging_result: ImageTaggingDTO,
     ) -> StampAnalysis:
@@ -39,14 +39,11 @@ class StampAnalysisService:
         analysis.dominant_colors = extraction_result.dominant_colors
         analysis.raw_result = {
             "extraction": {
-                "a4_corners": extraction_result.a4_corners,
-                "a4_width_mm": extraction_result.a4_width_mm,
-                "a4_height_mm": extraction_result.a4_height_mm,
-                "corrected_page_width_px": (
-                    extraction_result.corrected_page_width_px
-                ),
-                "corrected_page_height_px": (
-                    extraction_result.corrected_page_height_px
+                "image_width_px": extraction_result.image_width_px,
+                "image_height_px": extraction_result.image_height_px,
+                "background_color": extraction_result.background_color,
+                "background_uniform_ratio": (
+                    extraction_result.background_uniform_ratio
                 ),
                 "stamp_box": {
                     "x": extraction_result.stamp_box.x,

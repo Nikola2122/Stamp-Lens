@@ -22,7 +22,29 @@
   <section class="intro">
     <div class="eyebrow"><span>01</span> Upload and select</div>
     <h1>Bring your stamps<br /><em>into focus.</em></h1>
-    <p>Upload your A4 stamp photos, then select the image you want to process.</p>
+    <p>Take a clear photo of one stamp, upload it here, then choose it from your collection.</p>
+  </section>
+
+  <section class="photo-guide" aria-labelledby="photo-guide-title">
+    <figure class="guide-example">
+      <img
+        src="/guides/stamp-photo-example.png"
+        alt="Example of one stamp centered on a plain purple background with empty space around every edge"
+        height="1086" width="1448"/>
+      <figcaption><span aria-hidden="true">✓</span> A good photo</figcaption>
+    </figure>
+
+    <div class="guide-copy">
+      <p class="guide-kicker">Before you upload</p>
+      <h2 id="photo-guide-title">Help us find your stamp</h2>
+      <p>Place one stamp on a plain, single-color surface. Choose a color that stands out from the edge of your stamp.</p>
+      <ul>
+        <li><span aria-hidden="true">1</span> Keep the whole stamp visible</li>
+        <li><span aria-hidden="true">2</span> Leave some empty space on every side</li>
+        <li><span aria-hidden="true">3</span> Use soft, even light and avoid strong shadows</li>
+      </ul>
+      <p class="guide-note">A table, sheet of paper, or card is fine—as long as it is plain and one color.</p>
+    </div>
   </section>
 
   <section class="upload-section" aria-labelledby="upload-title">
@@ -88,7 +110,7 @@
         <article class="photo-card" *ngFor="let photo of photos(); trackBy: trackPhoto">
           <div class="photo-frame">
             <img [src]="photo.file" [alt]="photo.original_name" />
-            <span class="capture-badge">A4 capture</span>
+            <span class="capture-badge">Stamp photo</span>
             <span class="new-badge" *ngIf="photo.isNew">New</span>
           </div>
           <div class="photo-info">

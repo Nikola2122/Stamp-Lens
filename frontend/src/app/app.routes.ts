@@ -7,12 +7,12 @@ export const routes: Routes = [
   {
     path: '',
     component: StampWorkspaceComponent,
-    title: 'Stamp Lens — Upload workspace'
+    title: 'Stamp Lens - Upload workspace'
   },
   {
     path: 'process/:id',
     component: ProcessImageComponent,
-    title: 'Stamp Lens — Process image'
+    title: 'Stamp Lens - Process image'
   },
   {path: '**', redirectTo: ''}
 ];

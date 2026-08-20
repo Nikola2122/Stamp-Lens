@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {Component, ElementRef, OnInit, inject, signal, viewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {finalize, forkJoin} from 'rxjs';

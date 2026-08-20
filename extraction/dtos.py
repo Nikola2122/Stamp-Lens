@@ -22,18 +22,22 @@ class StampBoxDTO:
 
 
 @dataclass
-class A4ExtractionDTO:
+class SurfaceExtractionDTO:
     cropped_stamp: np.ndarray
     width_mm: float
     height_mm: float
     dominant_colors: list[str]
     model_version: str
-    a4_corners: list[list[float]]
-    a4_width_mm: float
-    a4_height_mm: float
-    corrected_page_width_px: int
-    corrected_page_height_px: int
+    image_width_px: int
+    image_height_px: int
+    background_color: str
+    background_uniform_ratio: float
     stamp_box: StampBoxDTO
+
+
+# Kept as an alias so callers written for the first A4 implementation do not
+# break while the stored database schema is migrated independently.
+A4ExtractionDTO = SurfaceExtractionDTO
 
 
 @dataclass
