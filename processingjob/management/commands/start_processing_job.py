@@ -1,21 +1,28 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from ingestion.models import StampImage
+
 from processingjob.services import ProcessingJobError, ProcessingJobService
 
 
 class Command(BaseCommand):
-    help = "Schedule the temporary processing job Redis test."
+    help = "Schedule a complete stamp processing job."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "job_id",
-            nargs="?",
-            help="Optional job ID; a generated ID is used when omitted.",
+            "stamp_image_id",
+            type=int,
+            help="ID of the uploaded stamp image to process.",
         )
 
     def handle(self, *args, **options):
         try:
-            result = ProcessingJobService().start(options["job_id"])
+            stamp_image = StampImage.objects.get(
+                pk=options["stamp_image_id"]
+            )
+            result = ProcessingJobService().start(stamp_image)
+        except StampImage.DoesNotExist as error:
+            raise CommandError("The stamp image does not exist.") from error
         except ProcessingJobError as error:
             raise CommandError(str(error)) from error
 
